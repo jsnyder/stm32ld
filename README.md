@@ -3,7 +3,7 @@ STM32 Firmware Loader
 
 These C sources can be used to burn .bin (no hex support) firmware images to STM32 microcontrollers using the built-in serial bootloader.
 
-> Usage: stm32ld <port> <baud> <binary image name>
+> Usage: stm32ld &lt;port&gt; &lt;baud&gt; &lt;binary image name&gt;
   
 
 Building
