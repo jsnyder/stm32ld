@@ -100,7 +100,8 @@ int stm32_init( const char *portname, u32 baud )
 // Expected response: ACK version OPTION1 OPTION2 ACK
 int stm32_get_version( u8 *major, u8 *minor )
 {
-  u8 temp, total, i, version;
+  u8 i, version;
+  int temp, total;
   int tries = STM32_RETRY_COUNT;  
 
   STM32_CHECK_INIT;
@@ -111,7 +112,7 @@ int stm32_get_version( u8 *major, u8 *minor )
   {
     STM32_READ_AND_CHECK( temp );
     if( i == 0 )
-      version = temp;
+      version = ( u8 )temp;
   }
   *major = version >> 4;
   *minor = version & 0x0F;
@@ -122,7 +123,8 @@ int stm32_get_version( u8 *major, u8 *minor )
 // Get chip ID
 int stm32_get_chip_id( u16 *version )
 {
-  u8 temp, vh, vl;
+  u8 temp;
+  int vh, vl;
 
   STM32_CHECK_INIT;
   stm32h_send_command( STM32_CMD_GET_ID );
@@ -131,7 +133,7 @@ int stm32_get_chip_id( u16 *version )
   STM32_READ_AND_CHECK( vh );
   STM32_READ_AND_CHECK( vl );
   STM32_EXPECT( STM32_COMM_ACK );
-  *version = ( ( u16 )vh << 8 ) | vl;
+  *version = ( ( u16 )vh << 8 ) | ( u16 )vl;
   return STM32_OK;
 }
 
