@@ -11,6 +11,9 @@ static u32 fpsize;
 
 #define BL_VERSION_MAJOR  2
 #define BL_VERSION_MINOR  1
+#define BL_MKVER( major, minor )    ( ( major ) * 256 + ( minor ) ) 
+#define BL_MINVERSION               BL_MKVER( BL_VERSION_MAJOR, BL_VERSION_MINOR )
+
 #define CHIP_ID           0x0414
 
 // ****************************************************************************
@@ -89,7 +92,7 @@ int main( int argc, const char **argv )
   else
   {
     printf( "Found bootloader version: %d.%d\n", major, minor );
-    if( major != BL_VERSION_MAJOR || minor != BL_VERSION_MINOR )
+    if( BL_MKVER( major, minor ) < BL_MINVERSION )
     {
       fprintf( stderr, "Unsupported bootloader version" );
       exit( 1 );
