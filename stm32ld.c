@@ -201,3 +201,26 @@ int stm32_write_flash( p_read_data read_data_func, p_progress progress_func )
   return STM32_OK;
 }
 
+// "Go" command - Description in: AN3155 Application note
+int stm32_go_command( void )
+{
+  u32 address = STM32_FLASH_START_ADDRESS; // TODO: get address as optional parameter from command line
+
+  STM32_CHECK_INIT;
+
+  // Send "Go" request
+  stm32h_send_command( STM32_CMD_GO );
+  STM32_EXPECT( STM32_COMM_ACK );
+
+  // Send address to Jump & Run
+  stm32h_send_address( address );
+  STM32_EXPECT( STM32_COMM_ACK );
+
+  // Expect second ACK as acknowledge of address validation & checksum 
+  // NOTE: second ACK should come but in real it's not coming :-(  ... not required ...
+  //STM32_EXPECT( STM32_COMM_ACK );
+
+  return STM32_OK;
+}
+
+

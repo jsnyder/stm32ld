@@ -3,6 +3,7 @@
 #include "stm32ld.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include <limits.h>
 
@@ -47,14 +48,17 @@ static void writeh_progress( u32 wrote )
 
 int main( int argc, const char **argv )
 {
+  u8 not_flashing=0;
+  u8 send_go_command=0;
   u8 minor, major;
   u16 version;
   long baud;
  
   // Argument validation
-  if( argc != 4 )
+  if( argc < 4 )
   {
-    fprintf( stderr, "Usage: stm32ld <port> <baud> <binary image name>\n" );
+    fprintf( stderr, "Usage: stm32ld <port> <baud> <binary image name|0 to not flash> [<0|1 to send Go command to new flashed app>]\n" );
+    fprintf( stderr, "Note: Thanks to Go command you don't need to change status of BOOT0 after flashing,\n\t\ttake care after power cycle ...\n\n\n" );
     exit( 1 );
   }
   errno = 0;
@@ -64,16 +68,29 @@ int main( int argc, const char **argv )
     fprintf( stderr, "Invalid baud '%s'\n", argv[ 2 ] );
     exit( 1 );
   }
-  if( ( fp = fopen( argv[ 3 ], "rb" ) ) == NULL )
+  
+  if( argc >= 5 && strlen(argv[ 4 ])==1 && strncmp(argv[ 4 ], "1", 1)==0 )
   {
-    fprintf( stderr, "Unable to open %s\n", argv[ 3 ] );
-    exit( 1 );
+    send_go_command=1;
+  }
+
+  if( strlen(argv[ 3 ])==1 && strncmp(argv[ 3 ], "0", 1)==0 )
+  {
+    not_flashing=1;
   }
   else
   {
-    fseek( fp, 0, SEEK_END );
-    fpsize = ftell( fp );
-    fseek( fp, 0, SEEK_SET );
+    if( ( fp = fopen( argv[ 3 ], "rb" ) ) == NULL )
+    {
+      fprintf( stderr, "Unable to open %s\n", argv[ 3 ] );
+      exit( 1 );
+    }
+    else
+    {
+      fseek( fp, 0, SEEK_END );
+      fpsize = ftell( fp );
+      fseek( fp, 0, SEEK_SET );
+    }
   }
   
   // Connect to bootloader
@@ -115,36 +132,53 @@ int main( int argc, const char **argv )
     }
   }
   
-  // Write unprotect
-  if( stm32_write_unprotect() != STM32_OK )
+  if( not_flashing == 0 )
   {
-    fprintf( stderr, "Unable to execute write unprotect\n" );
-    exit( 1 );
+    // Write unprotect
+    if( stm32_write_unprotect() != STM32_OK )
+    {
+      fprintf( stderr, "Unable to execute write unprotect\n" );
+      exit( 1 );
+    }
+    else
+      printf( "Cleared write protection.\n" );
+
+    // Erase flash
+    if( stm32_erase_flash() != STM32_OK )
+    {
+      fprintf( stderr, "Unable to erase chip\n" );
+      exit( 1 );
+    }
+    else
+      printf( "Erased FLASH memory.\n" );
+
+    // Program flash
+    setbuf( stdout, NULL );
+    printf( "Programming flash ... ");
+    if( stm32_write_flash( writeh_read_data, writeh_progress ) != STM32_OK )
+    {
+      fprintf( stderr, "Unable to program FLASH memory.\n" );
+      exit( 1 );
+    }
+    else
+      printf( "\nDone.\n" );
+
+    fclose( fp );
   }
   else
-    printf( "Cleared write protection.\n" );
+    printf( "Skipping flashing ... \n" );
 
-  // Erase flash
-  if( stm32_erase_flash() != STM32_OK )
+  if( send_go_command == 1 )
   {
-    fprintf( stderr, "Unable to erase chip\n" );
-    exit( 1 );
+    // Run GO
+    printf( "Sending Go command ... \n" );
+    if( stm32_go_command( ) != STM32_OK )
+    {
+      fprintf( stderr, "Unable to run Go command.\n" );
+      exit( 1 );
+    }
   }
-  else
-    printf( "Erased FLASH memory.\n" );
 
-  // Program flash
-  setbuf( stdout, NULL );
-  printf( "Programming flash ... ");
-  if( stm32_write_flash( writeh_read_data, writeh_progress ) != STM32_OK )
-  {
-    fprintf( stderr, "Uanble to program FLASH memory.\n" );
-    exit( 1 );
-  }
-  else
-    printf( "\nDone.\n" );
-
-  fclose( fp );
   return 0;
 }
            
