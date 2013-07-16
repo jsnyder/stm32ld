@@ -145,14 +145,13 @@ int stm32_write_unprotect()
   STM32_EXPECT( STM32_COMM_ACK );
   STM32_EXPECT( STM32_COMM_ACK );
   // At this point the system got a reset, so we need to re-enter BL mode
+  usleep( 200000 );
   return stm32h_connect_to_bl();
 }
 
 // Erase flash
 int stm32_erase_flash()
 {
-  u8 temp;
-
   STM32_CHECK_INIT;
   stm32h_send_command( STM32_CMD_ERASE_FLASH );
   STM32_EXPECT( STM32_COMM_ACK );
@@ -161,6 +160,21 @@ int stm32_erase_flash()
   STM32_EXPECT( STM32_COMM_ACK );
   return STM32_OK;
 }
+    
+// Extended erase flash
+int stm32_extended_erase_flash()
+{
+  STM32_CHECK_INIT;
+  stm32h_send_command( STM32_CMD_EXTENDED_ERASE_FLASH );
+  STM32_EXPECT( STM32_COMM_ACK );
+  ser_write_byte( stm32_ser_id, 0xFF );
+  ser_write_byte( stm32_ser_id, 0xFF );
+  ser_write_byte( stm32_ser_id, 0x00 );
+  ser_set_timeout_ms( stm32_ser_id, SER_INF_TIMEOUT );
+  STM32_EXPECT( STM32_COMM_ACK );
+  return STM32_OK;
+}
+    
 
 // Program flash
 // Requires pointers to two functions: get data and progress report

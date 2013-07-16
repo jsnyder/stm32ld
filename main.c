@@ -16,6 +16,7 @@ static u32 fpsize;
 #define BL_MINVERSION               BL_MKVER( BL_VERSION_MAJOR, BL_VERSION_MINOR )
 
 #define CHIP_ID           0x0414
+#define CHIP_ID_ALT           0x0413
 
 // ****************************************************************************
 // Helper functions and macros
@@ -125,7 +126,7 @@ int main( int argc, const char **argv )
   else
   {
     printf( "Chip ID: %04X\n", version );
-    if( version != CHIP_ID )
+    if( version != CHIP_ID && version != CHIP_ID_ALT )
     {
       fprintf( stderr, "Unsupported chip ID" );
       exit( 1 );
@@ -144,13 +145,27 @@ int main( int argc, const char **argv )
       printf( "Cleared write protection.\n" );
 
     // Erase flash
-    if( stm32_erase_flash() != STM32_OK )
+    if( major == 3 )
     {
-      fprintf( stderr, "Unable to erase chip\n" );
-      exit( 1 );
+      printf( "Starting Extended Erase of FLASH memory. This will take some time ... Please be patient ...\n" );
+      if( stm32_extended_erase_flash() != STM32_OK )
+      {
+        fprintf( stderr, "Unable to extended erase chip\n" );
+        exit( 1 );
+      }
+      else
+        printf( "Extended Erased FLASH memory.\n" );
     }
     else
-      printf( "Erased FLASH memory.\n" );
+    {
+      if( stm32_erase_flash() != STM32_OK )
+      {
+        fprintf( stderr, "Unable to erase chip\n" );
+        exit( 1 );
+      }
+      else
+        printf( "Erased FLASH memory.\n" );
+    }
 
     // Program flash
     setbuf( stdout, NULL );
