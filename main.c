@@ -15,8 +15,15 @@ static u32 fpsize;
 #define BL_MKVER( major, minor )    ( ( major ) * 256 + ( minor ) ) 
 #define BL_MINVERSION               BL_MKVER( BL_VERSION_MAJOR, BL_VERSION_MINOR )
 
-#define CHIP_ID           0x0414
-#define CHIP_ID_ALT           0x0413
+
+// Supported CHIP_IDs
+static const uint16_t SUPPORTED_CHIP_IDS[] =
+{
+  0x0410,
+  0x0414,
+  0x0413,
+  0
+};
 
 // ****************************************************************************
 // Helper functions and macros
@@ -125,8 +132,18 @@ int main( int argc, const char **argv )
   }
   else
   {
+    uint16_t chip_id = 0;
+    const uint16_t *chip_ids = SUPPORTED_CHIP_IDS;
     printf( "Chip ID: %04X\n", version );
-    if( version != CHIP_ID && version != CHIP_ID_ALT )
+    while( *chip_ids != 0 )
+    {
+      if( *chip_ids == version )
+      {
+        chip_id = version;
+        break;
+      }
+    }
+    if( chip_id == 0 )
     {
       fprintf( stderr, "Unsupported chip ID\n" );
       exit( 1 );
