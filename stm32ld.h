@@ -47,6 +47,8 @@ int stm32_write_unprotect();
 int stm32_erase_flash();
 int stm32_write_flash( p_read_data read_data_func, p_progress progress_func );
 int stm32_go_command( void );
+int stm32_get_version( u8 *major, u8 *minor );
+int stm32_extended_erase_flash();
 
 #endif
 

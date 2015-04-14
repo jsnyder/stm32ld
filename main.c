@@ -112,7 +112,7 @@ int main( int argc, const char **argv )
     printf( "Found bootloader version: %d.%d\n", major, minor );
     if( BL_MKVER( major, minor ) < BL_MINVERSION )
     {
-      fprintf( stderr, "Unsupported bootloader version" );
+      fprintf( stderr, "Unsupported bootloader version\n" );
       exit( 1 );
     }
   }
@@ -128,7 +128,7 @@ int main( int argc, const char **argv )
     printf( "Chip ID: %04X\n", version );
     if( version != CHIP_ID && version != CHIP_ID_ALT )
     {
-      fprintf( stderr, "Unsupported chip ID" );
+      fprintf( stderr, "Unsupported chip ID\n" );
       exit( 1 );
     }
   }

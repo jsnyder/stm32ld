@@ -1,6 +1,7 @@
 // STM32 bootloader client
 
 #include <stdio.h>
+#include <unistd.h>
 #include "serial.h"
 #include "type.h"
 #include "stm32ld.h"
@@ -102,7 +103,6 @@ int stm32_get_version( u8 *major, u8 *minor )
 {
   u8 i, version;
   int temp, total;
-  int tries = STM32_RETRY_COUNT;  
 
   STM32_CHECK_INIT;
   stm32h_send_command( STM32_CMD_GET_COMMAND );
@@ -123,7 +123,6 @@ int stm32_get_version( u8 *major, u8 *minor )
 // Get chip ID
 int stm32_get_chip_id( u16 *version )
 {
-  u8 temp;
   int vh, vl;
 
   STM32_CHECK_INIT;
