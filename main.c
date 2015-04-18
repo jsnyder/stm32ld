@@ -132,18 +132,16 @@ int main( int argc, const char **argv )
   }
   else
   {
-    uint16_t chip_id = 0;
     const uint16_t *chip_ids = SUPPORTED_CHIP_IDS;
     printf( "Chip ID: %04X\n", version );
     while( *chip_ids != 0 )
     {
       if( *chip_ids == version )
       {
-        chip_id = version;
         break;
       }
     }
-    if( chip_id == 0 )
+    if( *chip_ids == 0 )
     {
       fprintf( stderr, "Unsupported chip ID\n" );
       exit( 1 );
