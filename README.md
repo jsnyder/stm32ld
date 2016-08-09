@@ -15,7 +15,7 @@ If lake is installed:
 Otherwise:
 
 Linux/Mac OS X:
-> gcc -o stm32ld main.c stm32ld.c serial_posix.c
+> make
 
 
 Original source author: Bogdan Marinescu <bogdan.marinescu@gmail.com>

@@ -15,8 +15,15 @@ static u32 fpsize;
 #define BL_MKVER( major, minor )    ( ( major ) * 256 + ( minor ) ) 
 #define BL_MINVERSION               BL_MKVER( BL_VERSION_MAJOR, BL_VERSION_MINOR )
 
-#define CHIP_ID           0x0414
-#define CHIP_ID_ALT           0x0413
+
+// Supported CHIP_IDs
+static const uint16_t SUPPORTED_CHIP_IDS[] =
+{
+  0x0410,
+  0x0414,
+  0x0413,
+  0
+};
 
 // ****************************************************************************
 // Helper functions and macros
@@ -112,7 +119,7 @@ int main( int argc, const char **argv )
     printf( "Found bootloader version: %d.%d\n", major, minor );
     if( BL_MKVER( major, minor ) < BL_MINVERSION )
     {
-      fprintf( stderr, "Unsupported bootloader version" );
+      fprintf( stderr, "Unsupported bootloader version\n" );
       exit( 1 );
     }
   }
@@ -125,10 +132,18 @@ int main( int argc, const char **argv )
   }
   else
   {
+    const uint16_t *chip_ids = SUPPORTED_CHIP_IDS;
     printf( "Chip ID: %04X\n", version );
-    if( version != CHIP_ID && version != CHIP_ID_ALT )
+    while( *chip_ids != 0 )
     {
-      fprintf( stderr, "Unsupported chip ID" );
+      if( *chip_ids == version )
+      {
+        break;
+      }
+    }
+    if( *chip_ids == 0 )
+    {
+      fprintf( stderr, "Unsupported chip ID\n" );
       exit( 1 );
     }
   }
