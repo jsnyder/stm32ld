@@ -140,6 +140,7 @@ int main( int argc, const char **argv )
       {
         break;
       }
+      chip_ids++;
     }
     if( *chip_ids == 0 )
     {
