@@ -6,6 +6,7 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 
 static FILE *fp;
 static u32 fpsize;
@@ -22,6 +23,7 @@ static const uint16_t SUPPORTED_CHIP_IDS[] =
   0x0410,
   0x0414,
   0x0413,
+  0x0440,
   0
 };
 
